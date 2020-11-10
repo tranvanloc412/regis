@@ -1,0 +1,7 @@
+package com.example.demo.config;
+
+public class PasswordConfig {
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+}

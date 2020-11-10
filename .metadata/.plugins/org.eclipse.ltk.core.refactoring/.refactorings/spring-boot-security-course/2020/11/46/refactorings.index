@@ -1,0 +1,4 @@
+1604975264288	Extract local variable 'user'
+1604976760297	Delete element
+1604991275047	Move 'login.html' to 'static'
+1604991290444	Move 'login.html' to 'templates'

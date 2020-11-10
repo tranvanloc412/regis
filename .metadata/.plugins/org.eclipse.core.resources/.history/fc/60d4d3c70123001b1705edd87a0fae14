@@ -1,0 +1,21 @@
+package com.example.demo.security.enums;
+
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
+import com.example.demo.security.enums.ApplicationUserPermission.*;
+
+public enum ApplicationUserRole {
+	STUDENT(Sets.newHashSet()), ADMIN(Sets.newHashSet(ApplicationUserPermision.COURSE_READ, COURSE_WRITE, STUDENT_READ, COURSE_WRITE));
+	
+	private final Set<ApplicationUserPermission> permission;
+
+	private ApplicationUserRole(Set<ApplicationUserPermission> permission) {
+		this.permission = permission;
+	}
+
+	public Set<ApplicationUserPermission> getPermission() {
+		return permission;
+	}
+}

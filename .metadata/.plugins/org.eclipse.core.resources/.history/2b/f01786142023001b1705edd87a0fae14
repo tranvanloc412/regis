@@ -1,0 +1,63 @@
+package com.example.demo.config;
+
+import static com.example.demo.security.enums.ApplicationUserPermission.COURSE_WRITE;
+import static com.example.demo.security.enums.ApplicationUserRole.ADMIN;
+import static com.example.demo.security.enums.ApplicationUserRole.ADMINTRAINEE;
+import static com.example.demo.security.enums.ApplicationUserRole.STUDENT;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@Configuration
+@EnableWebSecurity
+public class SpingSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	private final PasswordEncoder passwordEncoder;
+
+	@Autowired
+	public SpingSecurityConfig(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http //
+				.csrf().disable() //
+				.authorizeRequests() //
+				.antMatchers("/", "index", "/js/**", "/css/**", "/img/**").permitAll() //
+				.antMatchers("/api/**").hasRole(STUDENT.name()) //
+				.antMatchers(HttpMethod.DELETE, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission()) //
+				.antMatchers(HttpMethod.POST, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission()) //
+				.antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(COURSE_WRITE.getPermission()) //
+				.antMatchers("/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name()) //
+				.anyRequest().authenticated().and() //
+//				.httpBasic()
+				.formLogin();
+	}
+
+	@Override
+	@Bean
+	public UserDetailsService userDetailsServiceBean() throws Exception {
+		UserDetails test1 = User.builder().username("test1").password(passwordEncoder.encode("password"))
+//				.roles(STUDENT.name())
+				.authorities(STUDENT.getGrantedAuthorities()).build();
+		UserDetails test2 = User.builder().username("test2").password(passwordEncoder.encode("password"))
+//				.roles(ADMIN.name())
+				.authorities(ADMIN.getGrantedAuthorities()).build();
+		UserDetails test3 = User.builder().username("test3").password(passwordEncoder.encode("password"))
+//				.roles(ADMINTRAINEE.name())
+				.authorities(ADMINTRAINEE.getGrantedAuthorities()).build();
+		return new InMemoryUserDetailsManager(test1, test2, test3);
+	}
+
+}
